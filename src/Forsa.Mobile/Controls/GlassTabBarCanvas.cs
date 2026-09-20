@@ -14,7 +14,7 @@ public class GlassTabBarCanvas : ContentView
     const float HMargin = 20;     // minimum capsule side margin
     const float MaxBarWidth = 440;
     const float TopPad = 10;      // room for the soft shadow
-    const float BottomPad = 4;    // extra gap above the system safe area
+    const float BottomPad = 2;    // extra gap above the system safe area
     const float Inset = 5;        // space between capsule and bubble
     const float IconSize = 24;
     const float IconGap = 3;

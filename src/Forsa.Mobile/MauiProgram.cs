@@ -1,6 +1,9 @@
 using Forsa.Mobile.ViewModels;
 using Forsa.Mobile.Views;
 using Microsoft.Extensions.Logging;
+#if MAUI_DEVFLOW
+using Microsoft.Maui.DevFlow.Agent;
+#endif
 
 namespace Forsa.Mobile;
 
@@ -16,6 +19,10 @@ public static class MauiProgram
             fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIconsFilled");
             fonts.AddFont("MaterialIconsOutlined-Regular.otf", "MaterialIconsOutlined");
         });
+
+    #if MAUI_DEVFLOW
+        builder.AddMauiDevFlowAgent();
+    #endif
 
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<MainPage>();
