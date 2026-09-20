@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Forsa.Application/Forsa.Application.csproj" />
+    <Project Path="src/Forsa.Domain/Forsa.Domain.csproj" />
+    <Project Path="src/Forsa.Infrastructure/Forsa.Infrastructure.csproj" />
+    <Project Path="src/Forsa.Mobile/Forsa.Mobile.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Forsa.Application.Tests/Forsa.Application.Tests.csproj" />
+    <Project Path="tests/Forsa.Infrastructure.Tests/Forsa.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>
