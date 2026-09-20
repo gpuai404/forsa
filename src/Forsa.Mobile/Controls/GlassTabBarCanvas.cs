@@ -23,17 +23,14 @@ public class GlassTabBarCanvas : ContentView
     const double IconTop = TopPad + (BarHeight - IconSize - IconGap - LabelHeight) / 2
         - (IconLabelHeight - IconSize) / 2;
 
-    static readonly Color Active = Color.FromArgb("#0057B8");
-    static readonly Color Inactive = Color.FromArgb("#667085");
-    static readonly Color BubbleFill = Color.FromArgb("#1F0057B8");
-    static readonly Color Surface = Color.FromArgb("#66FFFFFF");
-    static readonly Color Rim = Color.FromArgb("#99FFFFFF");
+    readonly GraphicsView _surface;
     readonly GraphicsView _graphics;
     readonly Grid _iconGrid;
     Label[] _outlinedIcons = [];
     Label[] _filledIcons = [];
+    Color[] _tintPalette = [];
 
-    // ---------- Bindable API (same as the control-based version) ----------
+    // ---------- Bindable API ----------
     public static readonly BindableProperty ItemsProperty = BindableProperty.Create(
         nameof(Items), typeof(IReadOnlyList<TabBarItem>), typeof(GlassTabBarCanvas), null,
         propertyChanged: (b, _, _) => ((GlassTabBarCanvas)b).Rebuild());
@@ -41,6 +38,30 @@ public class GlassTabBarCanvas : ContentView
     public static readonly BindableProperty SelectedIndexProperty = BindableProperty.Create(
         nameof(SelectedIndex), typeof(int), typeof(GlassTabBarCanvas), 0, BindingMode.TwoWay,
         propertyChanged: (b, o, n) => ((GlassTabBarCanvas)b).OnSelectedIndexChanged((int)o, (int)n));
+
+    public static readonly BindableProperty DrawSurfaceProperty = BindableProperty.Create(
+        nameof(DrawSurface), typeof(bool), typeof(GlassTabBarCanvas), true,
+        propertyChanged: (b, _, _) => ((GlassTabBarCanvas)b)._surface.Invalidate());
+
+    public static readonly BindableProperty ActiveColorProperty = BindableProperty.Create(
+        nameof(ActiveColor), typeof(Color), typeof(GlassTabBarCanvas), Color.FromArgb("#0057B8"),
+        propertyChanged: (b, _, _) => ((GlassTabBarCanvas)b).UpdateColors());
+
+    public static readonly BindableProperty InactiveColorProperty = BindableProperty.Create(
+        nameof(InactiveColor), typeof(Color), typeof(GlassTabBarCanvas), Color.FromArgb("#667085"),
+        propertyChanged: (b, _, _) => ((GlassTabBarCanvas)b).UpdateColors());
+
+    public static readonly BindableProperty HighlightColorProperty = BindableProperty.Create(
+        nameof(HighlightColor), typeof(Color), typeof(GlassTabBarCanvas), Color.FromArgb("#1F0057B8"),
+        propertyChanged: (b, _, _) => ((GlassTabBarCanvas)b)._graphics.Invalidate());
+
+    public static readonly BindableProperty SurfaceColorProperty = BindableProperty.Create(
+        nameof(SurfaceColor), typeof(Color), typeof(GlassTabBarCanvas), Color.FromArgb("#66FFFFFF"),
+        propertyChanged: (b, _, _) => ((GlassTabBarCanvas)b)._surface.Invalidate());
+
+    public static readonly BindableProperty RimColorProperty = BindableProperty.Create(
+        nameof(RimColor), typeof(Color), typeof(GlassTabBarCanvas), Color.FromArgb("#99FFFFFF"),
+        propertyChanged: (b, _, _) => ((GlassTabBarCanvas)b)._surface.Invalidate());
 
     public IReadOnlyList<TabBarItem>? Items
     {
@@ -54,8 +75,41 @@ public class GlassTabBarCanvas : ContentView
         set => SetValue(SelectedIndexProperty, value);
     }
 
-    /// <summary>Draw the capsule + shadow ourselves (default). Turn off if a native glass layer sits behind.</summary>
-    public bool DrawSurface { get; set; } = true;
+    public bool DrawSurface
+    {
+        get => (bool)GetValue(DrawSurfaceProperty);
+        set => SetValue(DrawSurfaceProperty, value);
+    }
+
+    public Color ActiveColor
+    {
+        get => (Color)GetValue(ActiveColorProperty);
+        set => SetValue(ActiveColorProperty, value);
+    }
+
+    public Color InactiveColor
+    {
+        get => (Color)GetValue(InactiveColorProperty);
+        set => SetValue(InactiveColorProperty, value);
+    }
+
+    public Color HighlightColor
+    {
+        get => (Color)GetValue(HighlightColorProperty);
+        set => SetValue(HighlightColorProperty, value);
+    }
+
+    public Color SurfaceColor
+    {
+        get => (Color)GetValue(SurfaceColorProperty);
+        set => SetValue(SurfaceColorProperty, value);
+    }
+
+    public Color RimColor
+    {
+        get => (Color)GetValue(RimColorProperty);
+        set => SetValue(RimColorProperty, value);
+    }
 
     public event EventHandler<int>? TabReselected;
 
@@ -76,6 +130,12 @@ public class GlassTabBarCanvas : ContentView
         BackgroundColor = Colors.Transparent;
         HeightRequest = BarHeight + TopPad + BottomPad;
         VerticalOptions = LayoutOptions.End;
+        _surface = new GraphicsView
+        {
+            BackgroundColor = Colors.Transparent,
+            InputTransparent = true,
+            Drawable = new SurfaceDrawable(this)
+        };
         _graphics = new GraphicsView
         {
             BackgroundColor = Colors.Transparent,
@@ -90,9 +150,11 @@ public class GlassTabBarCanvas : ContentView
             VerticalOptions = LayoutOptions.Start
         };
         var layout = new Grid { BackgroundColor = Colors.Transparent };
+        layout.Children.Add(_surface);
         layout.Children.Add(_graphics);
         layout.Children.Add(_iconGrid);
         Content = layout;
+        RebuildTintPalette();
 
         _graphics.StartInteraction += OnStart;
         _graphics.DragInteraction += OnDrag;
@@ -102,6 +164,7 @@ public class GlassTabBarCanvas : ContentView
         {
             UpdateIconGridMargin();
             SnapHighlight();
+            _surface.Invalidate();
         };
     }
 
@@ -174,12 +237,30 @@ public class GlassTabBarCanvas : ContentView
     void UpdateIconVisual(int i)
     {
         var progress = _sel[i];
-        var color = Lerp(Inactive, Active, progress);
+        var color = Tint(progress);
         _outlinedIcons[i].TextColor = color;
         _filledIcons[i].TextColor = color;
         _outlinedIcons[i].Opacity = 1 - progress;
         _filledIcons[i].Opacity = progress;
     }
+
+    void UpdateColors()
+    {
+        RebuildTintPalette();
+        for (var i = 0; i < _sel.Length; i++) UpdateIconVisual(i);
+        Invalidate();
+    }
+
+    void RebuildTintPalette()
+    {
+        const int steps = 60;
+        _tintPalette = new Color[steps + 1];
+        for (var i = 0; i <= steps; i++)
+            _tintPalette[i] = Lerp(InactiveColor, ActiveColor, (float)i / steps);
+    }
+
+    Color Tint(float progress) =>
+        _tintPalette[Math.Clamp((int)Math.Round(progress * (_tintPalette.Length - 1)), 0, _tintPalette.Length - 1)];
 
     void SnapHighlight()
     {
@@ -353,9 +434,28 @@ public class GlassTabBarCanvas : ContentView
         a.Blue + (b.Blue - a.Blue) * t,
         a.Alpha + (b.Alpha - a.Alpha) * t);
 
-    // ======================================================================
-    //  Drawing
-    // ======================================================================
+    // The shadow and glass surface redraw only when size or appearance changes.
+    sealed class SurfaceDrawable(GlassTabBarCanvas o) : IDrawable
+    {
+        public void Draw(ICanvas canvas, RectF dirtyRect)
+        {
+            if (!o.DrawSurface || o.BarWidth <= 2 * Inset) return;
+            var bar = new RectF(o.BarLeft, TopPad, o.BarWidth, (float)BarHeight);
+            var radius = bar.Height / 2;
+
+            canvas.SaveState();
+            canvas.SetShadow(new SizeF(0, 2), 8, Colors.Black.WithAlpha(0.14f));
+            canvas.FillColor = o.SurfaceColor;
+            canvas.FillRoundedRectangle(bar, radius);
+            canvas.RestoreState();
+
+            canvas.StrokeColor = o.RimColor;
+            canvas.StrokeSize = 1;
+            canvas.DrawRoundedRectangle(bar.X + 0.5f, bar.Y + 0.5f, bar.Width - 1, bar.Height - 1, radius - 0.5f);
+        }
+    }
+
+    // The highlight and title colours still animate on this small drawing layer.
     sealed class BarDrawable(GlassTabBarCanvas o) : IDrawable
     {
         public void Draw(ICanvas canvas, RectF dirtyRect)
@@ -364,32 +464,13 @@ public class GlassTabBarCanvas : ContentView
             if (items is null || items.Count == 0 || o.BarWidth <= 2 * Inset) return;
 
             var bar = new RectF(o.BarLeft, TopPad, o.BarWidth, (float)BarHeight);
-            var radius = bar.Height / 2;
-
-            // 1. Capsule surface + shadow + rim light
-            if (o.DrawSurface)
-            {
-                canvas.SaveState();
-                canvas.SetShadow(new SizeF(0, 2), 8, Colors.Black.WithAlpha(0.14f));
-                canvas.FillColor = Surface;
-                canvas.FillRoundedRectangle(bar, radius);
-                canvas.RestoreState();
-
-                canvas.StrokeColor = Rim;
-                canvas.StrokeSize = 1;
-                canvas.DrawRoundedRectangle(bar.X + 0.5f, bar.Y + 0.5f, bar.Width - 1, bar.Height - 1, radius - 0.5f);
-            }
-
             var itemW = (bar.Width - 2 * Inset) / items.Count;
             var bubbleH = bar.Height - 2 * Inset;
 
-            // Keep the highlight inside the rounded surface during transitions.
-            var clip = new PathF();
-            clip.AppendRoundedRectangle(bar, radius);
+            // Inset bounds and monotone easing keep the highlight inside the capsule.
             canvas.SaveState();
-            canvas.ClipPath(clip);
             canvas.Translate(bar.X + Inset + (float)o._bubbleX + itemW / 2, bar.Y + Inset + bubbleH / 2);
-            canvas.FillColor = BubbleFill;
+            canvas.FillColor = o.HighlightColor;
             canvas.FillRoundedRectangle(-itemW / 2, -bubbleH / 2, itemW, bubbleH, bubbleH / 2);
             canvas.RestoreState();
 
@@ -400,7 +481,7 @@ public class GlassTabBarCanvas : ContentView
             for (var i = 0; i < items.Count && i < o._sel.Length; i++)
             {
                 var cx = bar.X + Inset + itemW * (i + 0.5f);
-                var color = Lerp(Inactive, Active, o._sel[i]);
+                var color = o.Tint(o._sel[i]);
 
                 canvas.SaveState();
                 canvas.Translate(cx, cy);

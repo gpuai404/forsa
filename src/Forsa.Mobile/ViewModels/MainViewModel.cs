@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Forsa.Mobile.Controls;
+using Forsa.Mobile.Resources.Strings;
 
 namespace Forsa.Mobile.ViewModels;
 
@@ -7,10 +8,10 @@ public partial class MainViewModel : ObservableObject
 {
     public IReadOnlyList<TabBarItem> Tabs { get; } =
     [
-        new("Discover",  TabIcon.Discover),
-        new("Activity",  TabIcon.Activity),
-        new("Resume AI", TabIcon.ResumeAi),
-        new("Profile",   TabIcon.Profile),
+        new(AppStrings.DiscoverTab, TabIcon.Discover),
+        new(AppStrings.ActivityTab, TabIcon.Activity),
+        new(AppStrings.ResumeAiTab, TabIcon.ResumeAi),
+        new(AppStrings.ProfileTab, TabIcon.Profile),
     ];
 
     [ObservableProperty]

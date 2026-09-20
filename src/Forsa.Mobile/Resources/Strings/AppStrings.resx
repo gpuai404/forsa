@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
   <data name="AppName" xml:space="preserve"><value>Forsa</value></data>
+  <data name="DiscoverTab" xml:space="preserve"><value>Discover</value></data>
+  <data name="ActivityTab" xml:space="preserve"><value>Activity</value></data>
+  <data name="ResumeAiTab" xml:space="preserve"><value>Resume AI</value></data>
+  <data name="ProfileTab" xml:space="preserve"><value>Profile</value></data>
 </root>

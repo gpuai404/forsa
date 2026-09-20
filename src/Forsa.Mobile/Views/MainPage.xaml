@@ -3,33 +3,39 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Forsa.Mobile.ViewModels"
              xmlns:controls="clr-namespace:Forsa.Mobile.Controls"
+             xmlns:strings="clr-namespace:Forsa.Mobile.Resources.Strings"
              x:Class="Forsa.Mobile.Views.MainPage"
              x:DataType="vm:MainViewModel"
              Shell.NavBarIsVisible="False"
              Shell.TabBarIsVisible="False"
              SafeAreaEdges="None"
-             BackgroundColor="#F5F7F9">
+             BackgroundColor="{AppThemeBinding Light=#F5F7F9, Dark=#111A25}">
 
     <Grid>
 
         <!-- Tab content stays mounted when switching tabs. -->
         <ContentView IsVisible="{Binding IsDiscover}">
-            <Label Text="Discover" HorizontalOptions="Center" VerticalOptions="Center" />
+            <Label Text="{x:Static strings:AppStrings.DiscoverTab}" HorizontalOptions="Center" VerticalOptions="Center" />
         </ContentView>
         <ContentView IsVisible="{Binding IsActivity}">
-            <Label Text="Activity" HorizontalOptions="Center" VerticalOptions="Center" />
+            <Label Text="{x:Static strings:AppStrings.ActivityTab}" HorizontalOptions="Center" VerticalOptions="Center" />
         </ContentView>
         <ContentView IsVisible="{Binding IsResumeAi}">
-            <Label Text="Resume AI" HorizontalOptions="Center" VerticalOptions="Center" />
+            <Label Text="{x:Static strings:AppStrings.ResumeAiTab}" HorizontalOptions="Center" VerticalOptions="Center" />
         </ContentView>
         <ContentView IsVisible="{Binding IsProfile}">
-            <Label Text="Profile" HorizontalOptions="Center" VerticalOptions="Center" />
+            <Label Text="{x:Static strings:AppStrings.ProfileTab}" HorizontalOptions="Center" VerticalOptions="Center" />
         </ContentView>
 
         <!-- Fully drawn bar. Respects the home indicator / gesture bar. -->
         <Grid VerticalOptions="End" SafeAreaEdges="Container" BackgroundColor="Transparent">
             <controls:GlassTabBarCanvas Items="{Binding Tabs}"
                                         BackgroundColor="Transparent"
+                                        ActiveColor="{AppThemeBinding Light={StaticResource TabBarActiveLight}, Dark={StaticResource TabBarActiveDark}}"
+                                        InactiveColor="{AppThemeBinding Light={StaticResource TabBarInactiveLight}, Dark={StaticResource TabBarInactiveDark}}"
+                                        HighlightColor="{AppThemeBinding Light={StaticResource TabBarHighlightLight}, Dark={StaticResource TabBarHighlightDark}}"
+                                        SurfaceColor="{AppThemeBinding Light={StaticResource TabBarSurfaceLight}, Dark={StaticResource TabBarSurfaceDark}}"
+                                        RimColor="{AppThemeBinding Light={StaticResource TabBarRimLight}, Dark={StaticResource TabBarRimDark}}"
                                         SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" />
         </Grid>
 
