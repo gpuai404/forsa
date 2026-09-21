@@ -14,7 +14,7 @@
     <Grid>
 
         <!-- Tab content stays mounted when switching tabs. -->
-        <ContentView IsVisible="{Binding IsDiscover}">
+        <ContentView IsVisible="{Binding IsDiscover}" BackgroundColor="yellow">
             <Label Text="{x:Static strings:AppStrings.DiscoverTab}" HorizontalOptions="Center" VerticalOptions="Center" />
         </ContentView>
         <ContentView IsVisible="{Binding IsActivity}">
@@ -27,16 +27,15 @@
             <Label Text="{x:Static strings:AppStrings.ProfileTab}" HorizontalOptions="Center" VerticalOptions="Center" />
         </ContentView>
 
-        <!-- Fully drawn bar. Respects the home indicator / gesture bar. -->
+        <!-- Native floating bar. Respects the home indicator / gesture bar. -->
         <Grid VerticalOptions="End" SafeAreaEdges="Container" BackgroundColor="Transparent">
-            <controls:GlassTabBarCanvas Items="{Binding Tabs}"
-                                        BackgroundColor="Transparent"
-                                        ActiveColor="{AppThemeBinding Light={StaticResource TabBarActiveLight}, Dark={StaticResource TabBarActiveDark}}"
-                                        InactiveColor="{AppThemeBinding Light={StaticResource TabBarInactiveLight}, Dark={StaticResource TabBarInactiveDark}}"
-                                        HighlightColor="{AppThemeBinding Light={StaticResource TabBarHighlightLight}, Dark={StaticResource TabBarHighlightDark}}"
-                                        SurfaceColor="{AppThemeBinding Light={StaticResource TabBarSurfaceLight}, Dark={StaticResource TabBarSurfaceDark}}"
-                                        RimColor="{AppThemeBinding Light={StaticResource TabBarRimLight}, Dark={StaticResource TabBarRimDark}}"
-                                        SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" />
+            <controls:GlassTabBar Items="{Binding Tabs}"
+                                  BackgroundColor="Transparent"
+                                  ActiveColor="{AppThemeBinding Light={StaticResource TabBarActiveLight}, Dark={StaticResource TabBarActiveDark}}"
+                                  InactiveColor="{AppThemeBinding Light={StaticResource TabBarInactiveLight}, Dark={StaticResource TabBarInactiveDark}}"
+                                  HighlightColor="{AppThemeBinding Light={StaticResource TabBarHighlightLight}, Dark={StaticResource TabBarHighlightDark}}"
+                                  SurfaceColor="{AppThemeBinding Light={StaticResource TabBarSurfaceLight}, Dark={StaticResource TabBarSurfaceDark}}"
+                                  SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}" />
         </Grid>
 
     </Grid>

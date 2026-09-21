@@ -35,8 +35,6 @@
     <Color x:Key="TabBarHighlightDark">#4077BBFF</Color>
     <Color x:Key="TabBarSurfaceLight">#66FFFFFF</Color>
     <Color x:Key="TabBarSurfaceDark">#CC1D2938</Color>
-    <Color x:Key="TabBarRimLight">#99FFFFFF</Color>
-    <Color x:Key="TabBarRimDark">#66FFFFFF</Color>
 
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>

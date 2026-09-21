@@ -8,10 +8,10 @@ public partial class MainViewModel : ObservableObject
 {
     public IReadOnlyList<TabBarItem> Tabs { get; } =
     [
-        new(AppStrings.DiscoverTab, TabIcon.Discover),
-        new(AppStrings.ActivityTab, TabIcon.Activity),
-        new(AppStrings.ResumeAiTab, TabIcon.ResumeAi),
-        new(AppStrings.ProfileTab, TabIcon.Profile),
+        new(AppStrings.DiscoverTab, new TabBarIcon("magnifyingglass", "\ue8b6")),
+        new(AppStrings.ActivityTab, new TabBarIcon("flame", "\uef55")),
+        new(AppStrings.ResumeAiTab, new TabBarIcon("bookmark", "\ue866")),
+        new(AppStrings.ProfileTab, new TabBarIcon("person", "\ue7fd")),
     ];
 
     [ObservableProperty]

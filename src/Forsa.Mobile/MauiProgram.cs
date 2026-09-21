@@ -1,3 +1,5 @@
+using Forsa.Mobile.Controls;
+using Forsa.Mobile.Handlers;
 using Forsa.Mobile.ViewModels;
 using Forsa.Mobile.Views;
 using Microsoft.Extensions.Logging;
@@ -16,9 +18,10 @@ public static class MauiProgram
         {
             fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-            fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIconsFilled");
-            fonts.AddFont("MaterialIconsOutlined-Regular.otf", "MaterialIconsOutlined");
         });
+
+        builder.ConfigureMauiHandlers(handlers =>
+            handlers.AddHandler<GlassTabBar, GlassTabBarHandler>());
 
     #if MAUI_DEVFLOW
         builder.AddMauiDevFlowAgent();
